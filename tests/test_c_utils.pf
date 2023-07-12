@@ -1,0 +1,46 @@
+module test_c_utils
+  use funit
+  use fdp_c_utils
+  implicit none
+
+  contains
+
+    @test
+    subroutine test_f2c_str
+      use, intrinsic :: iso_c_binding, only: c_char, c_int, c_ptr
+      character(3, kind=c_char) :: foo
+      character(3, kind=c_char) :: bar
+      character(6, kind=c_char) :: foobar
+      character(1, kind=c_char) :: foo_arr(4)
+      character(1, kind=c_char) :: bar_arr(4)
+      character(1, kind=c_char) :: foobar_arr(7)
+      type(c_ptr) :: foo_ptr, bar_ptr, foobar_ptr
+
+      interface
+        function is_foo(str) bind(C, name="is_foo")
+          use, intrinsic :: iso_c_binding, only: c_ptr, c_int
+          implicit none
+          type(c_ptr), intent(in) :: str
+          integer(c_int) :: is_foo
+        end function is_foo
+      end interface
+
+      foo = "foo"
+      bar = "bar"
+      foobar = "foobar"
+
+      ! Convert to c_char array intermediates
+      foo_arr = fdp_f_str_to_c_char_array(foo)
+      bar_arr = fdp_f_str_to_c_char_array(bar)
+      foobar_arr = fdp_f_str_to_c_char_array(foobar)
+
+      foo_ptr = fdp_c_char_array_to_c_str(foo_arr)
+      bar_ptr = fdp_c_char_array_to_c_str(bar_arr)
+      foobar_ptr = fdp_c_char_array_to_c_str(foobar_arr)
+
+      @assertEqual(1, is_foo(foo_ptr))
+      @assertEqual(0, is_foo(bar_ptr))
+      @assertEqual(0, is_foo(foobar_ptr))
+    end subroutine test_f2c_str
+
+end module test_c_utils

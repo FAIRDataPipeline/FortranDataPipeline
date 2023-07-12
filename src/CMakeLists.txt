@@ -9,6 +9,24 @@ set(FDPFORT_SOURCE_FILES
 add_library(fdpfort ${FDPFORT_SOURCE_FILES})
 add_library(fdpfort::fdpfort ALIAS fdpfort)
 
+# Location of built .mod files
+set(fdpfort_module_directory ${CMAKE_CURRENT_BINARY_DIR}/mod)
+set(fdpfort_module_install_directory "${CMAKE_INSTALL_INCLUDEDIR}" CACHE STRING
+  "Fortran module installation directory")
+
+set_target_properties(fdpfort PROPERTIES
+  Fortran_FORMAT FREE
+  Fortran_MODULE_DIRECTORY ${fdpfort_module_directory}
+  LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
+  ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/lib
+  )
+
+target_include_directories(
+  fdpfort
+  PUBLIC
+  $<BUILD_INTERFACE:${fdpfort_module_directory}>
+  $<INSTALL_INTERFACE:${fdpfort_module_install_directory}>
+  )
 
 # Set language standards (CMake doesn't implement this like for C/C++, need a hack)
 target_compile_options(fdpfort PRIVATE
@@ -56,6 +74,12 @@ if(FDPFORT_WITH_INSTALL)
     FILE fdpfortTargets.cmake
     NAMESPACE fdpfort::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/fdpfort
+  )
+
+  # Install mod files
+  install(DIRECTORY "${fdpfort_module_directory}/"
+    DESTINATION "${fdpfort_module_install_directory}"
+    FILES_MATCHING PATTERN "*.mod"
   )
 
   # Create files that allow installed project to be discovered using find_package
