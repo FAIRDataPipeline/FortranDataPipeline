@@ -60,7 +60,7 @@ if(FDPFORT_WITH_INSTALL)
 
   # Create files that allow installed project to be discovered using find_package
   configure_package_config_file(
-    "${PROJECT_SOURCE_DIR}/cmake/fdpfortConfig.cmake.in"
+    "${PROJECT_SOURCE_DIR}/fdpfortConfig.cmake.in"
     "${PROJECT_BINARY_DIR}/fdpfortConfig.cmake"
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/fdpfort
   )
