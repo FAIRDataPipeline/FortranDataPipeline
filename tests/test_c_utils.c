@@ -6,7 +6,7 @@ int is_foo(const char* str){
   return strcmp(str, "foo") == 0;
 }
 
-void repeat(const char* input, char* output){
+void repeat_str(const char* input, char* output){
   strcpy(output, input);
   strcat(output, input);
 }

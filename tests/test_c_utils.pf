@@ -7,20 +7,16 @@ module test_c_utils
 
     @test
     subroutine test_f2c_str
-      use, intrinsic :: iso_c_binding, only: c_char, c_int, c_ptr
+      use, intrinsic :: iso_c_binding, only: c_char
       character(3, kind=c_char) :: foo
       character(3, kind=c_char) :: bar
       character(6, kind=c_char) :: foobar
-      character(1, kind=c_char) :: foo_arr(4)
-      character(1, kind=c_char) :: bar_arr(4)
-      character(1, kind=c_char) :: foobar_arr(7)
-      type(c_ptr) :: foo_ptr, bar_ptr, foobar_ptr
 
       interface
         function is_foo(str) bind(C, name="is_foo")
           use, intrinsic :: iso_c_binding, only: c_ptr, c_int
           implicit none
-          type(c_ptr), intent(in) :: str
+          type(c_ptr), intent(in), value :: str
           integer(c_int) :: is_foo
         end function is_foo
       end interface
@@ -29,18 +25,56 @@ module test_c_utils
       bar = "bar"
       foobar = "foobar"
 
-      ! Convert to c_char array intermediates
-      foo_arr = fdp_f_str_to_c_char_array(foo)
-      bar_arr = fdp_f_str_to_c_char_array(bar)
-      foobar_arr = fdp_f_str_to_c_char_array(foobar)
-
-      foo_ptr = fdp_c_char_array_to_c_str(foo_arr)
-      bar_ptr = fdp_c_char_array_to_c_str(bar_arr)
-      foobar_ptr = fdp_c_char_array_to_c_str(foobar_arr)
-
-      @assertEqual(1, is_foo(foo_ptr))
-      @assertEqual(0, is_foo(bar_ptr))
-      @assertEqual(0, is_foo(foobar_ptr))
+      @assertEqual(1, is_foo(fdp_f2c_str(fdp_null_term(foo))))
+      @assertEqual(0, is_foo(fdp_f2c_str(fdp_null_term(bar))))
+      @assertEqual(0, is_foo(fdp_f2c_str(fdp_null_term(foobar))))
     end subroutine test_f2c_str
+
+    @test
+    subroutine test_c2f_str
+      use, intrinsic :: iso_c_binding, only: c_char, c_int, c_ptr
+      character(3, kind=c_char) :: foo
+      character(3, kind=c_char) :: bar
+      character(6, kind=c_char) :: foobar
+      character(7, kind=c_char) :: foo_buf
+      character(7, kind=c_char) :: bar_buf
+      character(13, kind=c_char) :: foobar_buf
+      character(6, kind=c_char) :: foofoo
+      character(6, kind=c_char) :: barbar
+      character(12, kind=c_char) :: foobarfoobar
+      type(c_ptr) :: foo_ptr, bar_ptr, foobar_ptr
+
+      interface
+        subroutine repeat_str(input, output) bind(C, name="repeat_str")
+          use, intrinsic :: iso_c_binding, only: c_ptr
+          implicit none
+          type(c_ptr), intent(in), value :: input
+          type(c_ptr), intent(in), value :: output
+        end subroutine repeat_str
+      end interface
+
+      foo = "foo"
+      bar = "bar"
+      foobar = "foobar"
+
+      ! Get pointers to buffers
+      foo_ptr = fdp_f2c_str(foo_buf)
+      bar_ptr = fdp_f2c_str(bar_buf)
+      foobar_ptr = fdp_f2c_str(foobar_buf)
+
+      ! Double strings
+      call repeat_str(fdp_f2c_str(fdp_null_term(foo)), foo_ptr)
+      call repeat_str(fdp_f2c_str(fdp_null_term(bar)), bar_ptr)
+      call repeat_str(fdp_f2c_str(fdp_null_term(foobar)), foobar_ptr)
+
+      ! Convert back to Fortran strings
+      foofoo = fdp_c2f_str(foo_ptr)
+      barbar = fdp_c2f_str(bar_ptr)
+      foobarfoobar = fdp_c2f_str(foobar_ptr)
+
+      @assertEqual("foofoo", foofoo)
+      @assertEqual("barbar", barbar)
+      @assertEqual("foobarfoobar", foobarfoobar)
+    end subroutine test_c2f_str
 
 end module test_c_utils
