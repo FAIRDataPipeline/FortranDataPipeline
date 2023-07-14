@@ -3,41 +3,65 @@ module test_fdpfort
   use fdpfort
   implicit none
 
+  character(*), parameter :: config = "./data/write_csv.yaml"
+  character(*), parameter :: script = "./data/test_script.sh"
+  character(*), parameter :: data_product = "tests/csv"
+  character(255) :: token
+
 contains
 
-  @test
-  subroutine test_fdp_link_write
+  @before
+  subroutine set_up
+    ! Initialises token
     use, intrinsic :: iso_c_binding, only: c_char, c_int
-    type(FdpDataPipeline) :: data_pipeline
-    character(*, kind=c_char), parameter :: config = "./data/write_csv.yaml"
-    character(*, kind=c_char), parameter :: script = "./data/test_script.sh"
+
     character(*, kind=c_char), parameter :: token_file = "/.fair/registry/token"
-    character(*, kind=c_char), parameter :: data_product="tests/csv_fort"
     character(255) :: home_dir
-    character(255, kind=c_char) :: token
-    character(:, kind=c_char), allocatable :: token_path
-    character(:, kind=c_char), allocatable :: data_store
-    integer(kind=c_int) :: err
-    integer :: token_io, data_io
+    integer :: io
 
     call getenv("HOME", home_dir)
-    token_path = trim(home_dir) // token_file
-    open(newunit=token_io, file=token_path)
-    read(token_io, *) token
-    close(token_io)
+    open(newunit=io, file=trim(home_dir) // token_file)
+    read(io, *) token
+    close(io)
+  end subroutine set_up
 
+  @test
+  subroutine test_fdp_link_read_write
+    ! Test that link_read and link_write work as intended.
+    ! TODO API check to ensure things have gone through.
+    use, intrinsic :: iso_c_binding, only: c_char, c_int
+
+    type(FdpDataPipeline) :: data_pipeline
+    character(:), allocatable :: data_store_path
+    integer :: err, io
+
+    ! Init pipeline
     err = fdp_init(data_pipeline, config, script, token)
     @assertEqual(0, err)
 
-    call fdp_link_write(data_pipeline, data_product, data_store, err)
+    ! Link data product, get path in data store
+    call fdp_link_write(data_pipeline, data_product, data_store_path, err)
     @assertEqual(0, err)
 
-    open(newunit=data_io, file=data_store)
-    write(data_io, *) "Test"
-    close(data_io)
+    ! Write something to this file
+    open(newunit=io, file=data_store_path)
+    write(io, '(3I3)') 10, 20, 30
+    close(io)
 
+    ! Finalise and reinitialise
     err = fdp_finalise(data_pipeline)
     @assertEqual(0, err)
-  end subroutine test_fdp_link_write
+    err = fdp_init(data_pipeline, config, script, token)
+    @assertEqual(0, err)
+
+    ! Link data product as a read product
+    call fdp_link_read(data_pipeline, data_product, data_store_path, err)
+    @assertEqual(0, err)
+
+    ! Finalise again
+    err = fdp_finalise(data_pipeline)
+    @assertEqual(0, err)
+
+  end subroutine test_fdp_link_read_write
 
 end module

@@ -21,4 +21,5 @@
 ## Stretch goals
 
 - Code coverage
+- autoformat/linting
 - fpm

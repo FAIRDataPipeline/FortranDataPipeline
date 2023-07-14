@@ -23,12 +23,12 @@ contains
 
   @test
   subroutine test_c2f_str
-    use, intrinsic :: iso_c_binding, only: c_char, c_ptr
-    character(*, kind=c_char), parameter :: foo = "foo"
-    character(*, kind=c_char), parameter :: bar = "bar"
-    character(*, kind=c_char), parameter :: foobar = "foobar"
-    character(:, kind=c_char), allocatable :: foo_buf, bar_buf, foobar_buf
-    character(:, kind=c_char), allocatable :: foofoo, barbar, foobarfoobar
+    use, intrinsic :: iso_c_binding, only: c_ptr
+    character(*), parameter :: foo = "foo"
+    character(*), parameter :: bar = "bar"
+    character(*), parameter :: foobar = "foobar"
+    character(:), allocatable :: foo_buf, bar_buf, foobar_buf
+    character(:), allocatable :: foofoo, barbar, foobarfoobar
     type(c_ptr) :: foo_ptr, bar_ptr, foobar_ptr
 
     interface

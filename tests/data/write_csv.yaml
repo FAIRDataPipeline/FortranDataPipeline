@@ -12,6 +12,13 @@ run_metadata:
   remote_repo: https://github.com/FAIRDataPipeline/FortranDataPipeline
 
 write:
-- data_product: tests/csv_fort
-  description: SEIRS model results
+- data_product: tests/csv
+  description: Test file for fdp_link_write
   file_type: csv
+  version: 0.1.0
+
+read:
+- data_product: tests/csv
+  description: Test file for fdp_link_read (must be created by fdp_link_write first)
+  file_type: csv
+  version: 0.1.0
