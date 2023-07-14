@@ -9,11 +9,11 @@ contains
   subroutine test_fdp_link_write
     use, intrinsic :: iso_c_binding, only: c_char, c_int
     type(FdpDataPipeline) :: data_pipeline
-    character(*, kind=c_char), parameter :: config = "./tests/data/write_csv.yaml"
-    character(*, kind=c_char), parameter :: script = "./tests/data/test_script.sh"
+    character(*, kind=c_char), parameter :: config = "./data/write_csv.yaml"
+    character(*, kind=c_char), parameter :: script = "./data/test_script.sh"
     character(*, kind=c_char), parameter :: token_file = "/.fair/registry/token"
     character(*, kind=c_char), parameter :: data_product="tests/csv_fort"
-    character(255, kind=c_char) :: home_dir   
+    character(255) :: home_dir
     character(255, kind=c_char) :: token
     character(:, kind=c_char), allocatable :: token_path
     character(:, kind=c_char), allocatable :: data_store

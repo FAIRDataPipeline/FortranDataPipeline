@@ -57,3 +57,9 @@ add_custom_target(
   DEPENDS ${FDPFORT_CTEST_CASES}
 )
 add_dependencies(run-tests build-tests)
+
+# Copy data files into test binary dir
+add_custom_command(
+  TARGET build-tests POST_BUILD
+  COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/data ${CMAKE_CURRENT_BINARY_DIR}
+  )
