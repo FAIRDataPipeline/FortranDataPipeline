@@ -36,7 +36,7 @@ After doing so, the library can be discovered and utilised in other CMake projec
 using:
 
 ```
-find_package(fdfort)
+find_package(fdpfort)
 target_link_libraries(my_project PRIVATE fdpfort::fdpfort)
 ```
 
@@ -44,8 +44,8 @@ target_link_libraries(my_project PRIVATE fdpfort::fdpfort)
 
 The Fortran API depends on the C++ API, and links into it via the C API. The main
 object the user will interact with is `FdpDataPipeline`, which must be passed to
-methods such as `fdp_link_read` etc. This type has only a single member, which is a
-`c_ptr` to the C struct `FdpDataPipeline`.
+methods such as `fdp_link_read` etc. This object should be initialised prior to use
+using `fdp_init`, and finalised at the end of a program run using `fdp_finalise`.
 
 A logger has been used to give as much feedback to the user as possible. The verbosity
 is handled by a log level argument to the function `fdp_log`. The environment variable
