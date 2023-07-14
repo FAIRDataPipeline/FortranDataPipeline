@@ -64,4 +64,24 @@ contains
 
   end subroutine test_fdp_link_read_write
 
+  @test
+  subroutine test_log_levels
+    integer :: start_level, err
+
+    start_level = fdp_get_log_level()
+
+    call fdp_set_log_level(FDP_LOG_INFO)
+    @assertEqual(FDP_LOG_INFO, fdp_get_log_level())
+    err = fdp_log(FDP_LOG_INFO, "Hello world")
+    @assertEqual(0, err)
+
+    call fdp_set_log_level(FDP_LOG_DEBUG)
+    @assertEqual(FDP_LOG_DEBUG, fdp_get_log_level())
+    err = fdp_log(FDP_LOG_DEBUG, "Foo bar")
+    @assertEqual(0, err)
+
+    call fdp_set_log_level(start_level)
+
+  end subroutine test_log_levels
+
 end module

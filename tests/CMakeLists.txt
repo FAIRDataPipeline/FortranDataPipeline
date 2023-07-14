@@ -46,13 +46,13 @@ function(fdpfort_add_test test_source test_name)
   list(APPEND FDPFORT_CTEST_CASES fdpfort_test_${test_name})
   set(FDPFORT_CTEST_CASES ${FDPFORT_CTEST_CASES} PARENT_SCOPE)
   add_dependencies(build-tests fdpfort_test_${test_name})
-endfunction() 
+endfunction()
 
 fdpfort_add_test(./test_c_utils.pf c_utils)
 fdpfort_add_test(./test_fdpfort.pf fdpfort)
 
 add_custom_target(
-  run-tests 
+  run-tests
   COMMAND ctest --output-on-failure
   DEPENDS ${FDPFORT_CTEST_CASES}
 )

@@ -15,9 +15,9 @@ module fdpfort
   public :: fdp_finalise
   public :: fdp_link_read
   public :: fdp_link_write
-  !public :: fdp_log
-  !public :: fdp_set_log_level
-  !public :: fdp_get_log_level
+  public :: fdp_log
+  public :: fdp_set_log_level
+  public :: fdp_get_log_level
   public :: FDP_ERR_NONE
   public :: FDP_ERR_CONFIG_PARSE
   public :: FDP_ERR_REST_API_QUERY
@@ -221,5 +221,65 @@ contains
 
     data_store_path = fdp_c2f_str(data_store_ptr)
   end subroutine fdp_link_read
+
+  subroutine fdp_set_log_level(log_level)
+    !! Set the current log level. Must call `fdp_init` first.
+    use, intrinsic :: iso_c_binding, only: c_int
+    integer(kind=c_int), intent(in) :: log_level
+
+    interface
+      subroutine c_fdp_set_log_level(log_level) bind(C, name="fdp_set_log_level")
+        use, intrinsic :: iso_c_binding, only: c_int
+        implicit none
+        integer(kind=c_int), intent(in), value :: log_level
+      end subroutine c_fdp_set_log_level
+    end interface
+
+    call c_fdp_set_log_level(log_level)
+  end subroutine fdp_set_log_level
+
+  function fdp_get_log_level()
+    !! Return the current log level. Must call `fdp_init` first.
+    use, intrinsic :: iso_c_binding, only: c_int
+    integer(kind=c_int) :: fdp_get_log_level
+
+    interface
+      function c_fdp_get_log_level() bind(C, name="fdp_get_log_level")
+        use, intrinsic :: iso_c_binding, only: c_int
+        implicit none
+        integer(kind=c_int) :: c_fdp_get_log_level
+      end function c_fdp_get_log_level
+    end interface
+
+    fdp_get_log_level = c_fdp_get_log_level()
+  end function fdp_get_log_level
+
+  function fdp_log(log_level, message)
+    !! Write a message to the log.
+    !!
+    !! This will be passed to the C++ logger,
+    !! `FairDataPipeline::logger::get_logger()->level() << msg`, where `level` is one
+    !! of `trace`, `debug`, `info`, `warn`, `error`, or `critical`.
+    use, intrinsic :: iso_c_binding, only: c_int, c_char
+
+    integer(kind=c_int), intent(in) :: log_level
+      !! The type of log message to write, e.g. FDP_LOG_INFO, FDP_LOG_ERROR.
+    character(*, kind=c_char), intent(in) :: message
+      !! The message to be written to the log
+    integer(kind=c_int) :: fdp_log
+      !! Error code. 1 if logging unsuccessful, 0 otherwise
+
+    interface
+      function c_fdp_log(lvl, msg) bind(C, name="fdp_log")
+        use, intrinsic :: iso_c_binding, only: c_int, c_ptr
+        implicit none
+        integer(kind=c_int), intent(in), value :: lvl
+        type(c_ptr), intent(in), value :: msg
+        integer(kind=c_int) :: c_fdp_log
+      end function c_fdp_log
+    end interface
+
+    fdp_log = c_fdp_log(log_level, fdp_f2c_str(fdp_null_term(message)))
+  end function fdp_log
 
 end module fdpfort
