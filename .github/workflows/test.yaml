@@ -1,0 +1,62 @@
+name: FDP Fortran API Tests
+
+on: [push, workflow_dispatch]
+
+jobs:
+  Build_Ubuntu:
+    name: Build Ubuntu
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with: 
+          python-version: "3.9"
+          architecture: "x64"
+      - name: Install graphviz
+        run:  |
+              sudo apt-get install graphviz
+      - name: Install local registry
+        run: curl -fsSL https://data.scrc.uk/static/localregistry.sh | /bin/bash -s -- -b main
+      - name: Checkout FAIRDataPipeline/FAIR-CLI
+        uses: actions/checkout@v3
+        with:
+          repository: FAIRDataPipeline/FAIR-CLI
+          path: FAIR-CLI
+      - name: Move FAIR-CLI
+        run: mv FAIR-CLI ../FAIR-CLI
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      - name: Install and initialise FAIR CLI
+        run: |
+          cd ../FAIR-CLI
+          poetry install
+          source .venv/bin/activate
+          cd ${{ github.workspace }}
+          fair init --ci
+          fair registry start
+      - name: Install Dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y lcov curl libcurl4-openssl-dev libyaml-cpp-dev gcovr
+      - name: Checkout pFUnit
+        uses: actions/checkout@v3
+        with:
+          repository: Goddard-Fortran-Ecosystem/pFUnit
+          path: pFUnit
+      - name: Install pFUnit
+        run: |
+          cd pFUnit
+          export FC=gfortran
+          cmake -bBuild -DCMAKE_INSTALL_PREFIX=../install -DSKIP_OPENMP=ON -DSKIP_MPI=ON
+          cd ${{ github.workspace }}
+      - name: Configure Library
+        run: |
+          cmake -Bbuild -DFDPFORT_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=install
+      - name: Build and Run Unit Tests
+        run: |
+          cmake --build build --target run-tests
