@@ -53,6 +53,7 @@ jobs:
           cd pFUnit
           export FC=gfortran
           cmake -Bbuild -DCMAKE_INSTALL_PREFIX=../install -DSKIP_OPENMP=ON -DSKIP_MPI=ON
+          cmake --build build --target install
           cd ${{ github.workspace }}
       - name: Configure Library
         run: |
