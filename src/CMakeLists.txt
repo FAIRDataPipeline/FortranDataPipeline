@@ -4,10 +4,26 @@ include(FetchContent)
 
 set(FDPFORT_SOURCE_FILES
   ./fdp_c_utils.f90
+  ./fdpfort.f90
 )
 
 add_library(fdpfort ${FDPFORT_SOURCE_FILES})
 add_library(fdpfort::fdpfort ALIAS fdpfort)
+
+# Add C/C++ API as dependency
+find_package(fdpapi QUIET)
+if(NOT fdpapi_FOUND)
+  if(FDPFORT_NO_FETCH_C_API)
+    message(FATAL_ERROR "FDP C/C++ API not found.")
+  endif()
+  FetchContent_Declare(
+    fdpapi
+    GIT_REPOSITORY https://github.com/FAIRDataPipeline/cppDataPipeline
+    GIT_TAG main
+    )
+  FetchContent_MakeAvailable(fdpapi)
+endif()
+target_link_libraries(fdpfort PRIVATE fdpapi::fdpapi)
 
 # Location of built .mod files
 set(fdpfort_module_directory ${CMAKE_CURRENT_BINARY_DIR}/mod)

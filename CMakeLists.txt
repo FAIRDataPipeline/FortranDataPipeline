@@ -4,7 +4,7 @@ project(fdpfort
   VERSION 0.1.0
   DESCRIPTION "Fortran for the FAIR Data Pipeline"
   HOMEPAGE_URL "https://github.com/FAIRDataPipeline/FortranDataPipeline"
-  LANGUAGES Fortran C
+  LANGUAGES Fortran C CXX
 )
 
 # Ensure we can build a Fortran/C interface

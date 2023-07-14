@@ -49,6 +49,7 @@ function(fdpfort_add_test test_source test_name)
 endfunction() 
 
 fdpfort_add_test(./test_c_utils.pf c_utils)
+fdpfort_add_test(./test_fdpfort.pf fdpfort)
 
 add_custom_target(
   run-tests 

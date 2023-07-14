@@ -16,6 +16,7 @@ module fdp_c_utils
   public :: fdp_null_term
   public :: fdp_f2c_str
   public :: fdp_c2f_str
+  public :: fdp_c_str_buffer
 
 contains
 
@@ -28,7 +29,7 @@ contains
     character(*), intent(in) :: str
     character(len_trim(str)+1, kind=c_char) :: null_str
 
-    null_str = str(1:len_trim(str)) // c_null_char
+    null_str = trim(str) // c_null_char
   end function fdp_null_term
 
   function fdp_f2c_str(str) result(ptr)
@@ -69,19 +70,29 @@ contains
 
   contains
 
-  subroutine char_array_to_str(char_array, char_array_len, str)
-    use, intrinsic :: iso_c_binding, only: c_char
-    integer, intent(in) :: char_array_len
-    character(char_array_len, kind=c_char), intent(in), target :: char_array(1)
-    character(:, kind=c_char), intent(out), pointer :: str
+    subroutine char_array_to_str(char_array, char_array_len, str)
+      use, intrinsic :: iso_c_binding, only: c_char
+      integer, intent(in) :: char_array_len
+      character(char_array_len, kind=c_char), intent(in), target :: char_array(1)
+      character(:, kind=c_char), intent(out), pointer :: str
 
-    if( char_array_len .gt. 0 ) then
-      str => char_array(1)
-    else
-      str => NULL()
-    end if
-  end subroutine char_array_to_str
+      if( char_array_len .gt. 0 ) then
+        str => char_array(1)
+      else
+        str => NULL()
+      end if
+    end subroutine char_array_to_str
 
   end function fdp_c2f_str
+
+  function fdp_c_str_buffer(length)
+    !! Create a string filled with null characters. Via `fdp_f2c_str`, this can be
+    !! passed to C functions that modify a `char*` arg.
+    use, intrinsic :: iso_c_binding, only: c_char, c_null_char
+    integer, intent(in) :: length
+    character(length, kind=c_char) :: fdp_c_str_buffer
+
+    fdp_c_str_buffer = c_null_char
+  end function fdp_c_str_buffer
 
 end module fdp_c_utils

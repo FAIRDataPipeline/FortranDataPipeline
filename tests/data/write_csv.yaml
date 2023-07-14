@@ -1,0 +1,17 @@
+run_metadata:
+  description: Write csv file
+  local_data_registry_url: http://127.0.0.1:8000/api/
+  remote_data_registry_url: https://data.fairdatapipeline.org/api/
+  default_input_namespace: testing
+  default_output_namespace: testing
+  write_data_store: data_store/
+  local_repo: ./
+  script: bash ./build/bin/fdfort_test_fdpfort
+  public: true
+  latest_commit: c45d48991d975cd81f5615002a059b128a0006bb
+  remote_repo: https://github.com/FAIRDataPipeline/FortranDataPipeline
+
+write:
+- data_product: tests/csv_fort
+  description: SEIRS model results
+  file_type: csv
