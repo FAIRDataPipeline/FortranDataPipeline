@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+abstract: "The Fortan implementation of the FAIR Data Pipeline API."
+message: "If you use this software, please cite it using these metadata."
+authors:
+- family-names: "Pattinson"
+  given-names: "Liam"
+  orcid: "https://orcid.org/0000-0001-8604-6904"
+
+title: "FortranDataPipeline"
+version: 0.1.0
+license: LGPL-3.0
+doi: 10.5281/zenodo.1234
+date-released: 2023-07-24
+url: "https://github.com/FAIRDataPipeline/FortranDataPipeline"
+keywords:
+- FAIR Data Pipeline
+- FAIR
+- Data Management
+- Provenance
