@@ -1,6 +1,6 @@
 # FortranDataPipeline
 
-[![FDP Fortran API](https://github.com/FAIRDataPipeline/FortranDataPipeline/actions/workflows/test.yaml/badge.svg)](https://github.com/FAIRDataPipeline/cppDataPipeline/actions/workflows/test.yaml)
+[![FDP Fortran API](https://github.com/FAIRDataPipeline/FortranDataPipeline/actions/workflows/test.yml/badge.svg)](https://github.com/FAIRDataPipeline/cppDataPipeline/actions/workflows/test.yml)
 [![License: LGPL v3](https://img.shields.io/badge/License-LGPL_v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.8178773.svg)](https://doi.org/10.5281/zenodo.8178773)
 
