@@ -43,21 +43,9 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y lcov curl libcurl4-openssl-dev libyaml-cpp-dev gcovr
-      - name: Checkout pFUnit
-        uses: actions/checkout@v3
-        with:
-          repository: Goddard-Fortran-Ecosystem/pFUnit
-          path: pFUnit
-      - name: Install pFUnit
-        run: |
-          cd pFUnit
-          export FC=gfortran
-          cmake -Bbuild -DCMAKE_INSTALL_PREFIX=../install -DSKIP_OPENMP=ON -DSKIP_MPI=ON
-          cmake --build build --target install
-          cd ${{ github.workspace }}
       - name: Configure Library
         run: |
-          cmake -Bbuild -DFDPFORT_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=install
+          cmake -Bbuild -DFDPFORT_BUILD_TESTS=ON -DCMAKE_BUILD_TYPE=Debug
       - name: Build and Run Unit Tests
         run: |
           cmake --build build --target run-tests
