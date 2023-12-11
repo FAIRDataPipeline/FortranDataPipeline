@@ -16,7 +16,7 @@ Fortan implementation of the FAIR Data Pipeline API
 You can build and test the library using CMake. This implementation requires a compiler
 suite that supports C++11 and Fortran 2003.
 
-It is recomended that you install [CURL](https://curl.se/libcurl/) prior to
+It is recommended that you install [CURL](https://curl.se/libcurl/) prior to
 installation of this API.
 
 Compile the library by running:
@@ -43,7 +43,7 @@ target_link_libraries(my_project PRIVATE fdpfort::fdpfort)
 ## Outline
 
 The Fortran API depends on the C++ API, and links into it via the C API. The main
-object the user will interact with is `FdpDataPipeline`, which must be passed to
+object the user will interact with is `DataPipeline`, which must be passed to
 methods such as `fdp_link_read` etc. This object should be initialised prior to use
 using `fdp_init`, and finalised at the end of a program run using `fdp_finalise`.
 
@@ -58,21 +58,10 @@ The unit tests use the local registry. This needs to be running prior to running
 tests. See the [CLI docs](https://github.com/FAIRDataPipeline/FAIR-CLI#registry) for
 more information.
 
-The automatic fetching and installation of pFUnit is currently non-functional, so
-pFUnit must be installed manually:
-
-```bash
-$ git clone --recursive https://github.com/Goddard-Fortran-Ecosystem/pFUnit
-$ cd pFUnit
-$ export FC=gfortran
-$ cmake -Bbuild -DCMAKE_INSTALL_PREFIX=../install -DSKIP_OPENMP=ON -DSKIP_MPI=ON
-$ cmake --build build --target install
-```
-
 Then build the project with the flag `FDPFORT_BUILD_TESTS=ON`, and run using the
 target `run-tests`:
 
 ```bash
-$ cmake -Bbuild -DCMAKE_INSTALL_PATH=./install -DFDPFORT_BUILD_TESTS=ON
+$ cmake -Bbuild . -DFDPFORT_BUILD_TESTS=ON
 $ cmake --build build --target run-tests
 ```

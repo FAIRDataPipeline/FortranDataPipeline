@@ -46,10 +46,6 @@ _deps
 build
 install
 
-# pFUnit
-# (In case users want to install pFUnit into this repo)
-pFUnit
-
 # Python env
 # (In case users want to install fair-cli in a local venv)
 .env

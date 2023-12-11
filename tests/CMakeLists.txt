@@ -1,33 +1,22 @@
 find_package(PFUNIT QUIET)
-
 if(NOT PFUNIT_FOUND)
   if(FDPFORT_NO_FETCH_PFUNIT)
     message(FATAL_ERROR "pFUnit not found.")
   endif()
   FetchContent_Declare(
       pfunit
-      GIT_REPOSITORY "https://github.com/Goddard-Fortran-Ecosystem/pFUnit"
-      GIT_TAG main
+      GIT_REPOSITORY "https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git"
+      GIT_TAG v4.8.0
     )
   set(SKIP_OPENMP YES CACHE BOOL "" FORCE)
   set(SKIP_MPI YES CACHE BOOL "" FORCE)
-  if (NOT CMAKE_Fortran_FLAGS)
-    if (CMAKE_Fortran_COMPILER_ID STREQUAL GNU)
-      # Workaround for an issue in pFUnit: preprocessor macro
-      # expansion of the current source directory, which may
-      # truncate the line
-      set(CMAKE_Fortran_FLAGS "-ffree-line-length-none" CACHE STRING "" FORCE)
-      message(STATUS "Setting CMAKE_Fortran_FLAGS = ${CMAKE_Fortran_FLAGS}")
-    endif()
-  endif()
+  set(SKIP_FHAMCREST YES CACHE BOOL "" FORCE)
+  set(SKIP_ROBUST YES CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable(pfunit)
 endif()
 
 include(CTest)
 enable_testing()
-
-add_custom_target(build-tests)
-set(FDPFORT_CTEST_CASES)
 
 # Helper C lib
 set(FDPFORT_TEST_HELPER_SOURCE_FILES
@@ -35,21 +24,23 @@ set(FDPFORT_TEST_HELPER_SOURCE_FILES
   ./test_c_utils.c
 )
 add_library(fdpfort_test_helpers ${FDPFORT_TEST_HELPER_SOURCE_FILES})
-add_library(fdpfort::fdpfort_test_helpers ALIAS fdpfort_test_helpers)
+add_library(fdpfort::test_helpers ALIAS fdpfort_test_helpers)
 
-function(fdpfort_add_test test_source test_name)
-  add_pfunit_ctest(
-    fdpfort_test_${test_name}
-    TEST_SOURCES ${test_source}
-    LINK_LIBRARIES fdpfort::fdpfort fdpfort::fdpfort_test_helpers
+# Test creation utility function
+set(FDPFORT_CTEST_CASES)
+add_custom_target(build-tests)
+function(fdpfort_add_test test_name test_source)
+  add_pfunit_ctest(fdpfort_test_${test_name} 
+    TEST_SOURCES "${test_source}"
+    LINK_LIBRARIES fdpfort::fdpfort fdpfort::test_helpers
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
     )
   list(APPEND FDPFORT_CTEST_CASES fdpfort_test_${test_name})
-  set(FDPFORT_CTEST_CASES ${FDPFORT_CTEST_CASES} PARENT_SCOPE)
   add_dependencies(build-tests fdpfort_test_${test_name})
 endfunction()
 
-fdpfort_add_test(./test_c_utils.pf c_utils)
-fdpfort_add_test(./test_fdpfort.pf fdpfort)
+fdpfort_add_test(c_utils "test_c_utils.pf")
+fdpfort_add_test(fdp "test_fdp.pf")
 
 add_custom_target(
   run-tests
@@ -57,9 +48,3 @@ add_custom_target(
   DEPENDS ${FDPFORT_CTEST_CASES}
 )
 add_dependencies(run-tests build-tests)
-
-# Copy data files into test binary dir
-add_custom_command(
-  TARGET build-tests POST_BUILD
-  COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/data ${CMAKE_CURRENT_BINARY_DIR}
-  )

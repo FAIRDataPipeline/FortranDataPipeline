@@ -1,6 +1,8 @@
-module test_fdpfort
+module test_fdp
   use funit
-  use fdpfort
+  use fairdatapipeline, only: fdp_init, fdp_finalise, fdp_link_read, fdp_link_write,&
+                              fdp_log, fdp_set_log_level, fdp_get_log_level,&
+                              FDP_LOG_INFO, FDP_LOG_DEBUG, DataPipeline
   implicit none
 
   character(*), parameter :: config = "./data/write_csv.yaml"
@@ -31,7 +33,7 @@ contains
     ! TODO API check to ensure things have gone through.
     use, intrinsic :: iso_c_binding, only: c_char, c_int
 
-    type(FdpDataPipeline) :: data_pipeline
+    type(DataPipeline) :: data_pipeline
     character(:), allocatable :: data_store_path
     integer :: err, io
 
@@ -84,4 +86,4 @@ contains
 
   end subroutine test_log_levels
 
-end module
+end module test_fdp

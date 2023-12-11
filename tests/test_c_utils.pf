@@ -1,6 +1,6 @@
 module test_c_utils
   use funit
-  use fdp_c_utils
+  use fdp_c_utils, only: fdp_c2f_str, fdp_f2c_str, fdp_c_str_buffer, fdp_null_term
   implicit none
 
 contains

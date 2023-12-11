@@ -1,16 +1,16 @@
-module fdpfort
+module fairdatapipeline
   !! Fortran interface for the FairDataPipeline API.
   !!
   !! This relies on the C API, provided alongside cppDataPipeline.
   !! https://github.com/FAIRDataPipeline/cppDataPipeline
 
   use, intrinsic :: iso_c_binding, only: c_ptr
-  use fdp_c_utils
+  use fdp_c_utils, only: fdp_c_str_buffer, fdp_c2f_str, fdp_f2c_str, fdp_null_term
 
   implicit none
 
   private
-  public :: FdpDataPipeline
+  public :: DataPipeline
   public :: fdp_init
   public :: fdp_finalise
   public :: fdp_link_read
@@ -35,7 +35,7 @@ module fdpfort
   public :: FDP_LOG_CRITICAL
   public :: FDP_LOG_OFF
 
-  type, bind(c) :: FdpDataPipeline
+  type, bind(c) :: DataPipeline
     !! Interface to the `FdpDataPipeline` C struct
     type(c_ptr) :: ptr
   end type
@@ -73,7 +73,7 @@ contains
     !! If called more than once, returns FDP_ERR_OTHER.
     use, intrinsic :: iso_c_binding, only: c_char, c_int, c_loc
 
-    type(FdpDataPipeline), intent(inout), target :: data_pipeline
+    type(DataPipeline), intent(inout), target :: data_pipeline
       !! Object representing a connection to the pipeline. This will be passed to
       !! subsequent `fdp_link_read` and `fdp_link_write` calls.
     character(*, kind=c_char), intent(in) :: config_file_path
@@ -113,7 +113,7 @@ contains
     !! with all appropriate meta data.
     use, intrinsic :: iso_c_binding, only: c_int, c_loc
 
-    type(FdpDataPipeline), intent(inout), target :: data_pipeline
+    type(DataPipeline), intent(inout), target :: data_pipeline
       !! Object representing a connection to the pipeline. After calling this function,
       !! it will become unusable.
     integer(kind=c_int) :: fdp_finalise
@@ -139,7 +139,7 @@ contains
  
     use, intrinsic :: iso_c_binding, only: c_char, c_int, c_size_t, c_ptr
 
-    type(FdpDataPipeline), intent(in) :: data_pipeline
+    type(DataPipeline), intent(in) :: data_pipeline
       !! Object representing a connection to the pipeline.
     character(*, kind=c_char), intent(in) :: data_product
       !! Name of the data product to link to.
@@ -185,7 +185,7 @@ contains
  
     use, intrinsic :: iso_c_binding, only: c_char, c_int, c_size_t, c_ptr
 
-    type(FdpDataPipeline), intent(in) :: data_pipeline
+    type(DataPipeline), intent(in) :: data_pipeline
       !! Object representing a connection to the pipeline.
     character(*, kind=c_char), intent(in) :: data_product
       !! Name of the data product to link to.
@@ -282,4 +282,4 @@ contains
     fdp_log = c_fdp_log(log_level, fdp_f2c_str(fdp_null_term(message)))
   end function fdp_log
 
-end module fdpfort
+end module fairdatapipeline
