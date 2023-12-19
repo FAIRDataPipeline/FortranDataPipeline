@@ -1,8 +1,8 @@
 module test_fdp
   use funit
-  use fairdatapipeline, only: fdp_init, fdp_finalise, fdp_link_read, fdp_link_write,&
-                              fdp_log, fdp_set_log_level, fdp_get_log_level,&
-                              FDP_LOG_INFO, FDP_LOG_DEBUG, FdpDataPipeline
+  use fairdatapipeline, only: FdpDataPipeline, fdp_log, fdp_set_log_level, &
+    fdp_get_log_level, FDP_LOG_INFO, FDP_LOG_DEBUG
+  use, intrinsic :: iso_c_binding, only: c_char, c_int
   implicit none
 
   character(*), parameter :: config = "./data/write_csv.yaml"
@@ -15,13 +15,12 @@ contains
   @before
   subroutine set_up
     ! Initialises token
-    use, intrinsic :: iso_c_binding, only: c_char, c_int
 
     character(*, kind=c_char), parameter :: token_file = "/.fair/registry/token"
     character(255) :: home_dir
     integer :: io
 
-    call getenv("HOME", home_dir)
+    call get_environment_variable("HOME", home_dir)
     open(newunit=io, file=trim(home_dir) // token_file)
     read(io, *) token
     close(io)
@@ -31,18 +30,17 @@ contains
   subroutine test_fdp_link_read_write
     ! Test that link_read and link_write work as intended.
     ! TODO API check to ensure things have gone through.
-    use, intrinsic :: iso_c_binding, only: c_char, c_int
 
-    type(FdpDataPipeline) :: data_pipeline
+    type(FdpDataPipeline) :: pipeline
     character(:), allocatable :: data_store_path
     integer :: err, io
 
     ! Init pipeline
-    err = fdp_init(data_pipeline, config, script, token)
+    call pipeline%init(config, script, token, err=err)
     @assertEqual(0, err)
 
     ! Link data product, get path in data store
-    call fdp_link_write(data_pipeline, data_product, data_store_path, err)
+    data_store_path = pipeline%link_write(data_product, err=err)
     @assertEqual(0, err)
 
     ! Write something to this file
@@ -50,20 +48,19 @@ contains
     write(io, '(3I3)') 10, 20, 30
     close(io)
 
-    ! Finalise and reinitialise
-    err = fdp_finalise(data_pipeline)
+    ! Finalise and rebuild the pipeline
+    call pipeline%finalise(err=err)
     @assertEqual(0, err)
-    err = fdp_init(data_pipeline, config, script, token)
+    call pipeline%init(config, script, token, err=err)
     @assertEqual(0, err)
 
     ! Link data product as a read product
-    call fdp_link_read(data_pipeline, data_product, data_store_path, err)
+    data_store_path = pipeline%link_read(data_product, err=err)
     @assertEqual(0, err)
 
     ! Finalise again
-    err = fdp_finalise(data_pipeline)
+    call pipeline%finalise()
     @assertEqual(0, err)
-
   end subroutine test_fdp_link_read_write
 
   @test
@@ -74,12 +71,12 @@ contains
 
     call fdp_set_log_level(FDP_LOG_INFO)
     @assertEqual(FDP_LOG_INFO, fdp_get_log_level())
-    err = fdp_log(FDP_LOG_INFO, "Hello world")
+    call fdp_log(FDP_LOG_INFO, "Hello world", err=err)
     @assertEqual(0, err)
 
     call fdp_set_log_level(FDP_LOG_DEBUG)
     @assertEqual(FDP_LOG_DEBUG, fdp_get_log_level())
-    err = fdp_log(FDP_LOG_DEBUG, "Foo bar")
+    call fdp_log(FDP_LOG_DEBUG, "Foo bar", err=err)
     @assertEqual(0, err)
 
     call fdp_set_log_level(start_level)
