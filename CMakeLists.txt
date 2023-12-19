@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(fdpfort
-  VERSION 0.1.0
+  VERSION 0.2.0
   DESCRIPTION "Fortran for the FAIR Data Pipeline"
   HOMEPAGE_URL "https://github.com/FAIRDataPipeline/FortranDataPipeline"
   LANGUAGES Fortran C CXX
@@ -17,7 +17,7 @@ option(FDPFORT_NO_FETCH_C_API "Don't use FetchContent to get the FDP C/C++ API" 
 option(FDPFORT_NO_FETCH_PFUNIT "Don't use FetchContent to get pFUnit" OFF)
 
 if(FDPFORT_WITH_INSTALL)
-  set(FDPAPI_WITH_INSTALL ON CACHE BOOL)
+  set(FDPAPI_WITH_INSTALL ON CACHE BOOL "Build installation components for FDPAPI")
 endif()
 
 add_subdirectory(src)
