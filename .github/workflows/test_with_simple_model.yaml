@@ -46,8 +46,8 @@ jobs:
           cmake -Bbuild . -DFDPFORTREF="heads/${GITHUB_REF/refs\/heads\//}"
           cmake --build build --parallel
           fair init --ci --local
-          fair pull --local data/seirs_config.yaml
-          fair run --local data/seirs_config.yaml
+          fair pull --local data/config.yaml
+          fair run --local data/config.yaml
         if: startsWith(github.ref, 'refs/tags/') != true
       - name: Build and run seirs example on tagged release
         run: |
@@ -58,8 +58,8 @@ jobs:
           cmake -Bbuild . -DFDPFORTREF="tags/${GITHUB_REF/refs\/tags\//}"
           cmake --build build --parallel
           fair init --ci --local
-          fair pull --local data/seirs_config.yaml
-          fair run --local data/seirs_config.yaml
+          fair pull --local data/config.yaml
+          fair run --local data/config.yaml
         if: startsWith(github.ref, 'refs/tags/')
 
   Build_simple_model_from_install:
@@ -71,7 +71,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build
         run: |
-          cmake -B build -DCMAKE_INSTALL_PREFIX=../install
+          cmake -B build -DCMAKE_INSTALL_PREFIX=../install \
+            -DFDPFORT_WITH_INSTALL=ON -DFDPAPI_WITH_INSTALL=ON
           cmake --build build --parallel --target install
       - name: Install graphviz
         run:  |
