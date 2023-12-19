@@ -69,16 +69,30 @@ jobs:
       fail-fast: false
     steps:
       - uses: actions/checkout@v4
-      - name: Build
-        run: |
-          cmake -B build -DCMAKE_INSTALL_PREFIX=../install \
-            -DFDPFORT_WITH_INSTALL=ON -DFDPAPI_WITH_INSTALL=ON
-          cmake --build build --parallel --target install
       - name: Install graphviz
         run:  |
               sudo apt update
               sudo apt-get install graphviz
               sudo apt-get install -y gnuplot
+      - name: Checkout cppDataPipeline
+        uses: actions/checkout@v4
+        with:
+          repository: FAIRDataPipeline/cppDataPipeline
+          path: cppDataPipeline
+      - name: Move cppDataPipeline
+        run: |
+          mv cppDataPipeline ../cppDataPipeline
+      - name: Build cppDataPipeline
+        run: |
+          cd ../cppDataPipeline
+          cmake -Bbuild . -DCMAKE_INSTALL_PREFIX=../install \
+            -DFDPAPI_WITH_INSTALL=ON
+          cmake --build build --parallel --target install
+      - name: Build FortranDataPipeline
+        run: |
+          cmake -Bbuild . -DCMAKE_INSTALL_PREFIX=../install \
+            -DFDPFORT_WITH_INSTALL=ON
+          cmake --build build --parallel --target install
       - name: Checkout FortranSimpleModel
         uses: actions/checkout@v4
         with:
