@@ -3,6 +3,7 @@ if(NOT PFUNIT_FOUND)
   if(FDPFORT_NO_FETCH_PFUNIT)
     message(FATAL_ERROR "pFUnit not found.")
   endif()
+  include(FetchContent)
   FetchContent_Declare(
       pfunit
       GIT_REPOSITORY "https://github.com/Goddard-Fortran-Ecosystem/pFUnit.git"

@@ -10,7 +10,7 @@ module fairdatapipeline
   implicit none
 
   private
-  public :: DataPipeline
+  public :: FdpDataPipeline
   public :: fdp_init
   public :: fdp_finalise
   public :: fdp_link_read
@@ -35,7 +35,7 @@ module fairdatapipeline
   public :: FDP_LOG_CRITICAL
   public :: FDP_LOG_OFF
 
-  type, bind(c) :: DataPipeline
+  type, bind(c) :: FdpDataPipeline
     !! Interface to the `FdpDataPipeline` C struct
     type(c_ptr) :: ptr
   end type
@@ -73,7 +73,7 @@ contains
     !! If called more than once, returns FDP_ERR_OTHER.
     use, intrinsic :: iso_c_binding, only: c_char, c_int, c_loc
 
-    type(DataPipeline), intent(inout), target :: data_pipeline
+    type(FdpDataPipeline), intent(inout), target :: data_pipeline
       !! Object representing a connection to the pipeline. This will be passed to
       !! subsequent `fdp_link_read` and `fdp_link_write` calls.
     character(*, kind=c_char), intent(in) :: config_file_path
@@ -113,7 +113,7 @@ contains
     !! with all appropriate meta data.
     use, intrinsic :: iso_c_binding, only: c_int, c_loc
 
-    type(DataPipeline), intent(inout), target :: data_pipeline
+    type(FdpDataPipeline), intent(inout), target :: data_pipeline
       !! Object representing a connection to the pipeline. After calling this function,
       !! it will become unusable.
     integer(kind=c_int) :: fdp_finalise
@@ -139,7 +139,7 @@ contains
  
     use, intrinsic :: iso_c_binding, only: c_char, c_int, c_size_t, c_ptr
 
-    type(DataPipeline), intent(in) :: data_pipeline
+    type(FdpDataPipeline), intent(in) :: data_pipeline
       !! Object representing a connection to the pipeline.
     character(*, kind=c_char), intent(in) :: data_product
       !! Name of the data product to link to.
@@ -185,7 +185,7 @@ contains
  
     use, intrinsic :: iso_c_binding, only: c_char, c_int, c_size_t, c_ptr
 
-    type(DataPipeline), intent(in) :: data_pipeline
+    type(FdpDataPipeline), intent(in) :: data_pipeline
       !! Object representing a connection to the pipeline.
     character(*, kind=c_char), intent(in) :: data_product
       !! Name of the data product to link to.
