@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.20)
 
 project(fdpfort
-  VERSION 0.2.0
+  VERSION 0.2.1
   DESCRIPTION "Fortran for the FAIR Data Pipeline"
   HOMEPAGE_URL "https://github.com/FAIRDataPipeline/FortranDataPipeline"
   LANGUAGES Fortran C CXX
