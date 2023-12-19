@@ -91,7 +91,7 @@ jobs:
       - name: Build FortranDataPipeline
         run: |
           cmake -Bbuild . -DCMAKE_INSTALL_PREFIX=../install \
-            -DFDPFORT_WITH_INSTALL=ON
+            -DFDPFORT_WITH_INSTALL=ON -DFDPFORT_NO_FETCH_C_API=ON
           cmake --build build --parallel --target install
       - name: Checkout FortranSimpleModel
         uses: actions/checkout@v4
