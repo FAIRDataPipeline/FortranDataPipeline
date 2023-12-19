@@ -110,7 +110,7 @@ contains
       end function c_fdp_init
     end interface
 
-    err = c_fdp_init(c_loc(self%c_struct%ptr), &
+    err_ = c_fdp_init(c_loc(self%c_struct%ptr), &
       fdp_f2c_str(fdp_null_term(config_file_path)), &
       fdp_f2c_str(fdp_null_term(script_file_path)), &
       fdp_f2c_str(fdp_null_term(token)) &
