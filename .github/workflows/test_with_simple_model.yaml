@@ -1,0 +1,93 @@
+name: Fortran Test Simple Model
+
+on: [push, workflow_dispatch]
+
+jobs:
+  Test_Simple_Model:
+    name: Build Ubuntu Simple Model
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+          architecture: "x64"
+      - name: Install graphviz
+        run:  |
+              sudo apt update
+              sudo apt-get install graphviz
+              sudo apt-get install -y gnuplot
+      - name: Install local registry
+        run: curl -fsSL https://data.scrc.uk/static/localregistry.sh | /bin/bash -s -- -b main
+      - name: Checkout Fortran Simple Model
+        uses: actions/checkout@v4
+        with:
+          repository: FAIRDataPipeline/FortranSimpleModel
+          path: FortranSimpleModel
+      - name: Move FortranSimpleModel
+        run: |
+          mv FortranSimpleModel ../FortranSimpleModel
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+      - name: Install Dependencies
+        run: |
+          sudo apt install -y lcov curl libcurl4-openssl-dev libyaml-cpp-dev
+      - name: Build and run seirs example
+        run: |
+          cd ../FortranSimpleModel
+          python3 -m venv venv
+          source venv/bin/activate
+          pip3 install fair-cli
+          cmake -Bbuild . -DFDPFORTREF="heads/${GITHUB_REF/refs\/heads\//}"
+          cmake --build build --parallel
+          fair init --ci --local
+          fair pull --local data/seirs_config.yaml
+          fair run --local data/seirs_config.yaml
+        if: startsWith(github.ref, 'refs/tags/') != true
+      - name: Build and run seirs example on tagged release
+        run: |
+          cd ../FortranSimpleModel
+          python3 -m venv venv
+          source venv/bin/activate
+          pip3 install fair-cli
+          cmake -Bbuild . -DFDPFORTREF="tags/${GITHUB_REF/refs\/tags\//}"
+          cmake --build build --parallel
+          fair init --ci --local
+          fair pull --local data/seirs_config.yaml
+          fair run --local data/seirs_config.yaml
+        if: startsWith(github.ref, 'refs/tags/')
+
+  Build_simple_model_from_install:
+    name: Build Ubuntu simple model from install
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: |
+          cmake -B build -DCMAKE_INSTALL_PREFIX=../install
+          cmake --build build --parallel --target install
+      - name: Install graphviz
+        run:  |
+              sudo apt update
+              sudo apt-get install graphviz
+              sudo apt-get install -y gnuplot
+      - name: Checkout FortranSimpleModel
+        uses: actions/checkout@v4
+        with:
+          repository: FAIRDataPipeline/FortranSimpleModel
+          path: FortranSimpleModel
+      - name: Move FortranSimpleModel
+        run: |
+          mv FortranSimpleModel ../FortranSimpleModel
+      - name: Build FortranSimpleModel
+        run: |
+          cd ../FortranSimpleModel
+          cmake -Bbuild . -DCMAKE_INSTALL_PREFIX=../install -DNO_FETCHCONTENT=ON
+          cmake --build build --parallel
